@@ -48,3 +48,15 @@ tasks.jacocoTestCoverageVerification {
         }
     }
 }
+
+checkstyle {
+    toolVersion = "10.12.1"
+    configFile = file("config/checkstyle/checkstyle.xml")
+}
+
+tasks.withType<Checkstyle> {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
