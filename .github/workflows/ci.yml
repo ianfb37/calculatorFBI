@@ -1,0 +1,44 @@
+
+name: CI CalculatorFBI
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Se configura JDK 25 (Temurin)
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "25"
+          check-latest: true
+          cache: gradle
+      - name: Asegura que gradlew sea ejecutable
+        run: chmod +x ./gradlew
+      - name: Compilación
+        run: ./gradlew compileJava --no-daemon
+      - name: Pruebas unitarias
+        run: ./gradlew test --no-daemon
+      - name: Cobertura de codigo
+        run: ./gradlew jacocoTestReport --no-daemon
+      - name: Se sube el informe JaCoCo
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/html
+      - name: Fuerza comprobación de cobertura de código
+        run: ./gradlew jacocoTestCoverageVerification --no-daemon
+      - name: Análisis estático de código
+        run: ./gradlew checkstyleMain --no-daemon
+      - name: Se sube el informe Checkstyle
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkstyle-report
+          path: build/reports/checkstyle
